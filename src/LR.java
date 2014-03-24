@@ -1,11 +1,10 @@
-package LR_SGD;
+
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashSet;
 import java.util.Hashtable;
 
 //Here, the first argument 10000 is the vocabulary size. 
@@ -18,25 +17,48 @@ import java.util.Hashtable;
 //10000 0.5 0.1 20 1000 testData.txt
 
 public class LR {
-
-
-	public static void main(String[] args) throws IOException {
-
+	
+	
+	public void main(String[] args) throws FileNotFoundException {
+		
 		/**
 		 *  Train Part 
 		 */
 		int k = 0; // Keep the iteration time
-		String[] labelType = {"nl", "el", "ru", "sl", "pl", "ca", "fr", "tr", "hu", "de", "hr", "es", "ga", "pt"}; 
 		Hashtable<String, Hashtable<Integer, Integer>> A = new Hashtable<String, Hashtable<Integer,Integer>>();
 		Hashtable<String, Hashtable<Integer, Double>> B = new Hashtable<String, Hashtable<Integer,Double>>();
-		HashSet<String> record = new HashSet<String>();
-		for (String a : labelType) {
-			record.add(a);
-			A.put(a, new Hashtable<Integer, Integer>());
-			B.put(a, new Hashtable<Integer, Double>());
-		}
-
-		int vocab_size = Integer.valueOf(args[0]);
+		
+		A.put("nl", new Hashtable<Integer, Integer>());
+		A.put("el", new Hashtable<Integer, Integer>());
+		A.put("ru", new Hashtable<Integer, Integer>());
+		A.put("sl", new Hashtable<Integer, Integer>());
+		A.put("pl", new Hashtable<Integer, Integer>());
+		A.put("ca", new Hashtable<Integer, Integer>());
+		A.put("fr", new Hashtable<Integer, Integer>());
+		A.put("tr", new Hashtable<Integer, Integer>());
+		A.put("hu", new Hashtable<Integer, Integer>());
+		A.put("de", new Hashtable<Integer, Integer>());
+		A.put("hr", new Hashtable<Integer, Integer>());
+		A.put("es", new Hashtable<Integer, Integer>());
+		A.put("ga", new Hashtable<Integer, Integer>());
+		A.put("pt", new Hashtable<Integer, Integer>());
+		
+		B.put("nl", new Hashtable<Integer, Double>());
+		B.put("el", new Hashtable<Integer, Double>());
+		B.put("ru", new Hashtable<Integer, Double>());
+		B.put("sl", new Hashtable<Integer, Double>());
+		B.put("pl", new Hashtable<Integer, Double>());
+		B.put("ca", new Hashtable<Integer, Double>());
+		B.put("fr", new Hashtable<Integer, Double>());
+		B.put("tr", new Hashtable<Integer, Double>());
+		B.put("hu", new Hashtable<Integer, Double>());
+		B.put("de", new Hashtable<Integer, Double>());
+		B.put("hr", new Hashtable<Integer, Double>());
+		B.put("es", new Hashtable<Integer, Double>());
+		B.put("ga", new Hashtable<Integer, Double>());
+		B.put("pt", new Hashtable<Integer, Double>());
+		
+		int vocab_size = Integer.valueOf(args[1]);
 		double lr = 0.5;
 		double u = 0.1;
 		int times = Integer.valueOf(args[3]);
@@ -46,43 +68,40 @@ public class LR {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		String strLine;
 
-		for (int i = 0; i < times; i++) {
+		for (int i = 0; i < times; i++)
 			try { 
 				k++;
 				long num_line = 0;
 				while ((strLine = br.readLine()) != null) {
-					HashSet<String> zeroLabel = new HashSet<String>(record);
 					String[] label_text = strLine.split("\t");
 					String[] labels = label_text[0].split(",");
 					String[] words = label_text[1].split(" ");
 					int[] wordsValue = new int[words.length];
-					for (int j = 0; j < words.length; j++) {
+					for (int j = 0; j < words.length; i++) {
 						int id = words[j].hashCode() % vocab_size;
 						if (id < 0) {
 							id += vocab_size;
 						}
 						wordsValue[j] = id;
 					}
-					/**
-					 * For labels with value 1
-					 */
 					for (String label : labels) {
-						zeroLabel.remove(label);   // Delete the labels with value 1
 						Hashtable<Integer, Double> Btemp = B.get(label);
 						Hashtable<Integer, Integer> Atemp = A.get(label);
-
+						
 						for (int value : wordsValue) {
 							if (!Atemp.containsKey(value)) {
 								Atemp.put(value, 0);
 								Btemp.put(value, 0.0);
 							} else {
-								// Todo so only when Xj is not zero
+				                // Todo so only when Xj is not zero
 								double updated_Bj = Btemp.get(value) * Math.pow((1-lr*u) , (k-Atemp.get(value)));
 								Btemp.put(value, updated_Bj);
 								//Atemp.put(value, k);        //TODO when to update K
-
+								
 							}
 						}
+						
+						
 						double temp = 0.0;
 						for (int value : wordsValue) {
 							temp += Btemp.get(value);
@@ -94,48 +113,12 @@ public class LR {
 							Btemp.put(value, updated_Bj);
 							Atemp.put(value, k);
 						}
-
+						
 						// Update Hashtable for each label 
 						B.put(label, Btemp);    
 						A.put(label, Atemp);
 					}
-					/**
-					 * For labels with value 0
-					 */
-					String[] zerolebels = (String[]) zeroLabel.toArray();
-					for (String label : zerolebels) {
-						Hashtable<Integer, Double> Btemp = B.get(label);
-						Hashtable<Integer, Integer> Atemp = A.get(label);
-
-						for (int value : wordsValue) {
-							if (!Atemp.containsKey(value)) {
-								Atemp.put(value, 0);
-								Btemp.put(value, 0.0);
-							} else {
-								// Todo so only when Xj is not zero
-								double updated_Bj = Btemp.get(value) * Math.pow((1-lr*u) , (k-Atemp.get(value)));
-								Btemp.put(value, updated_Bj);
-								//Atemp.put(value, k);        //TODO when to update K
-							}
-						}
-						double temp = 0.0;
-						for (int value : wordsValue) {
-							temp += Btemp.get(value);
-						}
-						double P = 1 / (1 + Math.exp(-temp));
-						for (int value : wordsValue) {
-							double updated_Bj = Btemp.get(value);
-							updated_Bj += lr*(0-P);
-							Btemp.put(value, updated_Bj);
-							Atemp.put(value, k);
-						}
-
-						// Update Hashtable for each label 
-						B.put(label, Btemp);    
-						A.put(label, Atemp);
-					}
-
-					num_line ++;
+					
 					// Next iteration 
 					if (num_line == datasize) {
 						break;
@@ -145,10 +128,7 @@ public class LR {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		/**
-		 *  Update Bj in the last time
-		 */
+		
 		for (String a : B.keySet()) {
 			Hashtable<Integer, Double> Btemp = new Hashtable<Integer, Double>();
 			for (int b : B.get(a).keySet()) {
@@ -158,53 +138,10 @@ public class LR {
 			}
 			B.put(a, Btemp);
 		}
-
-
-		/**
-		 *  Debug Train Part 
-		 */
-		for (String a : B.keySet()) {
-			Hashtable<Integer, Double> Btemp = new Hashtable<Integer, Double>();
-			for (int b : B.get(a).keySet()) {
-				System.out.println("label :" + a +  "Integer :" + b + "value : " + Btemp.get(b));
-			}
-		}
-
-
+		
 		/**
 		 *  Test Part
 		 */
-		FileInputStream in = new FileInputStream(args[5]);
-		BufferedReader testBr = new BufferedReader(new InputStreamReader(in));
-		String testLine;
-		
-		while ( (testLine = testBr.readLine()) != null) {
-			String[] testWords = testLine.split(" ");
 			
-			int[] wordsValue = new int[testWords.length];
-			for (int j = 0; j < testWords.length; j++) {
-				int id = testWords[j].hashCode() % vocab_size;
-				if (id < 0) {
-					id += vocab_size;
-				}
-				wordsValue[j] = id;
-			}
-			int printRange = 0;
-			for (String a : labelType) {
-				Hashtable<Integer, Double> testTemp = B.get(a);
-				double temp = 0.0;
-				for (int value : wordsValue) {
-					temp += testTemp.get(value);
-				}
-				double P = 1 / (1 + Math.exp(-temp));
-				if (printRange == 13) {
-					System.out.print(a + "\t" + P + "\n");
-				} else {
-					System.out.print(a + "\t" + P + ",");
-				}
-				printRange ++;
-			}
-		}
 	}
-
 }
