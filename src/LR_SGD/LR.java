@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry.Entry;
+//import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry.Entry;
 
 //Here, the first argument 10000 is the vocabulary size. 
 //Second argument 0.5 is the initial value of the learning rate.   λ
@@ -32,6 +32,7 @@ public class LR {
 		String[] labelType = {"nl", "el", "ru", "sl", "pl", "ca", "fr", "tr", "hu", "de", "hr", "es", "ga", "pt"}; 
 		HashMap<String, HashMap<Integer, Integer>> A = new HashMap<String, HashMap<Integer,Integer>>();
 		HashMap<String, HashMap<Integer, Double>> B = new HashMap<String, HashMap<Integer,Double>>();
+		
 		HashSet<String> record = new HashSet<String>();
 		for (String a : labelType) {
 			record.add(a);
@@ -164,7 +165,7 @@ public class LR {
 
 		for (String a : B.keySet()) {
 			HashMap<Integer, Double> Btemp = B.get(a);
-			HashMap<Integer, Integer> Atemp = A.get(a);
+			//HashMap<Integer, Integer> Atemp = A.get(a);
 			for (int b : Btemp.keySet()) {
 				double updated_Bj = Btemp.get(b);
 				updated_Bj *= Math.pow((1-lr*u), k-A.get(a).get(b));
