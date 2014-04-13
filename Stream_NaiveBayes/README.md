@@ -2,12 +2,16 @@ Streaming Naive Bayes
 =================
 Much  of machine learning with big data involves - sometimes exclusively - counting events. Multinomial Naive Bayes fits nicely into this framework. The classifier needs just a few counters.
 
-For this assignment we will be performing document classification using streaming Multinomial Naive Bayes. We call it streaming because the input and output of each program are read from stdin and written to stdout. This allows us to use Unix pipe “|” to chain our programs together. For example:
+For this assignment we will be performing document classification using streaming Multinomial Naive Bayes. We call it streaming because the input and output of each program are read from stdin and written to stdout. This allows us to use Unix pipe “|” to chain our programs together. 
+
+For example:
  cat train.txt | java NBTrain | java NBTest test.txt
+
  The streaming formulation allows us to process large amounts of data without having to hold it all in memory.
  Let y be the labels for the training documents and wi be the ith word in a document. Here are the counters we need to maintain:
  (Y=y) for each label y the number of training instances of that class
  (Y=*) here * means anything, so this is just the total number of training instances. (Y=y,W=w) number of times token w appears in a document with label y. (Y=y,W=*) total number of tokens for documents with label y.
+ 
  The learning algorithm just increments counters:
      for each example {y [w1,...,wN]}:
                  increment #(Y=y) by 1
